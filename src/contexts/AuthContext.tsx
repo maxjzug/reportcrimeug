@@ -6,10 +6,10 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   phone: string | null;
+  email: string | null;
   language: string | null;
+  is_active: boolean;
 }
-
-const ADMIN_EMAILS = ["jusperkato@gmail.com"];
 
 interface AuthContextType {
   user: User | null;
@@ -32,6 +32,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url, phone, email, language, is_active")
+        .eq("user_id", userId)
+        .single();
+      setProfile(data as Profile | null);
+    } catch {
+      setProfile(null);
+    }
+  };
+
+  const checkAdmin = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin");
+      setIsAdmin(!!(data && data.length > 0));
+    } catch {
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -39,20 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(async () => {
-            try {
-              const { data } = await supabase
-                .from("profiles")
-                .select("display_name, avatar_url, phone, language")
-                .eq("user_id", session.user.id)
-                .single();
-              setProfile(data);
-            } catch {
-              setProfile(null);
-            }
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+            checkAdmin(session.user.id);
           }, 0);
         } else {
           setProfile(null);
+          setIsAdmin(false);
         }
         setLoading(false);
       }
@@ -62,12 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        supabase
-          .from("profiles")
-          .select("display_name, avatar_url, phone, language")
-          .eq("user_id", session.user.id)
-          .single()
-          .then(({ data }) => setProfile(data));
+        fetchProfile(session.user.id);
+        checkAdmin(session.user.id);
       }
       setLoading(false);
     });
@@ -80,9 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setProfile(null);
+    setIsAdmin(false);
   };
-
-  const isAdmin = !!(user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase()));
 
   return (
     <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, signOut }}>

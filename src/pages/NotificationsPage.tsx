@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 
-interface Notification { id: string; title: string; message: string; is_read: boolean; is_global: boolean; created_at: string; }
+interface Notification { id: string; title: string; message: string; type: string; is_read: boolean; created_at: string; }
 
 export function NotificationsPage() {
   const { user } = useAuth();
@@ -15,7 +15,7 @@ export function NotificationsPage() {
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
-    supabase.from("notifications").select("*").order("created_at", { ascending: false })
+    supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
       .then(({ data }) => { setNotifications((data as Notification[]) || []); setLoading(false); });
   }, [user]);
 
@@ -34,7 +34,7 @@ export function NotificationsPage() {
   };
 
   const displayItems = notifications.length > 0 ? notifications : [
-    { id: "1", title: "Welcome to ReportCrime", message: "Sign in to start reporting crimes and getting alerts.", is_read: false, is_global: true, created_at: new Date().toISOString() },
+    { id: "1", title: "Welcome to ReportCrime", message: "Sign in to start reporting crimes and getting alerts.", type: "info", is_read: false, created_at: new Date().toISOString() },
   ];
 
   return (

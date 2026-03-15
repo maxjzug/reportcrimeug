@@ -23,9 +23,13 @@ export function SettingsPage() {
       {user && (
         <button onClick={() => navigate("/auth")}
           className="w-full mb-6 p-4 rounded-lg bg-card border border-border flex items-center gap-4 hover:shadow-md transition-all text-left">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-primary-foreground"
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-primary-foreground overflow-hidden"
             style={{ background: "var(--gradient-primary)" }}>
-            {profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || "U"}
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
+            ) : (
+              (profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || "U")
+            )}
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">{profile?.display_name || user.email}</p>

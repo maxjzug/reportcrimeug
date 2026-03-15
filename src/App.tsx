@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +11,9 @@ import { HomePage } from "./pages/HomePage";
 import { AuthPage } from "./pages/AuthPage";
 import { MainDashboardPage } from "./pages/MainDashboardPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { ManageUsersPage } from "./pages/admin/ManageUsersPage";
+import { ManageAdminsPage } from "./pages/admin/ManageAdminsPage";
+import { PendingRequestsPage } from "./pages/admin/PendingRequestsPage";
 import { ReportCrimePage } from "./pages/ReportCrimePage";
 import { GetHelpPage } from "./pages/GetHelpPage";
 import { LostAndFoundPage } from "./pages/LostAndFoundPage";
@@ -24,11 +27,6 @@ import { NotificationsPage } from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-
-function AdminOrMain() {
-  const { isAdmin } = useAuth();
-  return isAdmin ? <AdminDashboardPage /> : <MainDashboardPage />;
-}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -44,7 +42,11 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
 
               <Route element={<AppLayout />}>
-                <Route path="/main" element={<AdminOrMain />} />
+                <Route path="/main" element={<MainDashboardPage />} />
+                <Route path="/admin" element={<AdminDashboardPage />} />
+                <Route path="/admin/manage-users" element={<ManageUsersPage />} />
+                <Route path="/admin/manage-admins" element={<ManageAdminsPage />} />
+                <Route path="/admin/pending-requests" element={<PendingRequestsPage />} />
                 <Route path="/report-crime" element={<ReportCrimePage />} />
                 <Route path="/get-help" element={<GetHelpPage />} />
                 <Route path="/lost-and-found" element={<LostAndFoundPage />} />
