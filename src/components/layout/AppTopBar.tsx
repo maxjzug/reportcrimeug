@@ -13,25 +13,30 @@ export function AppTopBar({ onMenuClick }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 border-b border-border bg-card">
       <div className="flex items-center gap-3">
-        {user && (
+        {/* Menu toggle - visible on ALL screen sizes */}
+        <button onClick={onMenuClick}
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
+          <FaBars className="text-sm" />
+        </button>
+
+        {user ? (
           <button
             onClick={() => navigate("/settings")}
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground overflow-hidden"
               style={{ background: "var(--gradient-primary)" }}>
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-lg object-cover" />
               ) : (
-                profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || "U"
+                (profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || "U")
               )}
             </div>
             <span className="text-sm font-semibold text-foreground hidden sm:block">
               {profile?.display_name || user.email?.split("@")[0]}
             </span>
           </button>
-        )}
-        {!user && (
+        ) : (
           <div className="flex items-center gap-2">
             <FaShieldAlt className="text-primary text-lg" />
             <span className="font-bold text-sm" style={{ fontFamily: "var(--font-display)" }}>ReportCrime</span>
@@ -43,10 +48,6 @@ export function AppTopBar({ onMenuClick }: TopBarProps) {
         <button onClick={() => navigate("/notifications")}
           className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
           <FaBell className="text-sm" />
-        </button>
-        <button onClick={onMenuClick}
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors md:hidden">
-          <FaBars className="text-sm" />
         </button>
       </div>
     </header>
