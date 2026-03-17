@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
   FaGavel, FaHandsHelping, FaSearch, FaUserFriends,
-  FaMapMarkerAlt, FaBook, FaUserPlus, FaBox, FaTimes,
+  FaMapMarkerAlt, FaBook, FaUserPlus, FaBox, FaTimes, FaCrown,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CARDS = [
   { key: "report-crime", label: "Report Crime", desc: "Submit crime or complaint reports", route: "/report-crime", icon: FaGavel, color: "hsl(0, 84%, 60%)" },
@@ -19,6 +20,7 @@ const CARDS = [
 
 export function MainDashboardPage() {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const [search, setSearch] = useState("");
 
   const filtered = CARDS.filter(
@@ -27,12 +29,31 @@ export function MainDashboardPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Admin Panel Link */}
+      {isAdmin && (
+        <motion.button
+          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          onClick={() => navigate("/admin")}
+          className="w-full mb-4 p-3 rounded-xl border border-yellow-200 dark:border-yellow-900/30 flex items-center gap-3 transition-all hover:shadow-md"
+          style={{ background: "linear-gradient(135deg, hsl(38 92% 50% / 0.08), hsl(45 93% 47% / 0.05))" }}
+        >
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30">
+            <FaCrown className="text-yellow-600 dark:text-yellow-400" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-bold text-foreground">Admin Dashboard</p>
+            <p className="text-[10px] text-muted-foreground">Manage users, reports & system settings</p>
+          </div>
+          <span className="text-xs text-primary font-medium">Open →</span>
+        </motion.button>
+      )}
+
       {/* Search bar */}
       <div className="mb-6">
         <div className="relative">
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm" />
           <input type="text" placeholder="Search services..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg py-2.5 pl-10 pr-10 border border-border bg-card text-foreground text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all" />
+            className="w-full rounded-xl py-2.5 pl-10 pr-10 border border-border bg-card text-foreground text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all" />
           {search && (
             <button onClick={() => setSearch("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition">
@@ -53,7 +74,7 @@ export function MainDashboardPage() {
               transition={{ delay: 0.05 + i * 0.05, duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
               whileHover={{ y: -4, scale: 1.015 }}
               whileTap={{ scale: 0.98 }}
-              className="group relative overflow-hidden rounded-lg border border-border bg-card backdrop-blur-sm text-left p-4 transition-shadow duration-300 hover:shadow-lg hover:border-primary/30"
+              className="group relative overflow-hidden rounded-xl border border-border bg-card backdrop-blur-sm text-left p-4 transition-shadow duration-300 hover:shadow-lg hover:border-primary/30"
             >
               <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: card.color + "15", color: card.color }}>
                 <Icon className="text-lg" />

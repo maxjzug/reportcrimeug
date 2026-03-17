@@ -8,7 +8,7 @@ import {
   FaUsers, FaUserShield, FaClipboardList, FaExclamationTriangle,
   FaCheckCircle, FaChartBar, FaSync, FaTimes, FaBell, FaCog,
   FaMapMarkerAlt, FaUserPlus, FaCrown, FaFileAlt, FaDatabase,
-  FaToggleOn, FaToggleOff, FaArrowLeft, FaHistory,
+  FaToggleOn, FaToggleOff, FaArrowLeft, FaHistory, FaSignOutAlt,
 } from "react-icons/fa";
 
 function formatNumber(val: number) {
@@ -33,6 +33,7 @@ interface RecentUser {
   user_id: string;
   display_name: string | null;
   email: string | null;
+  avatar_url: string | null;
   is_active: boolean | null;
   created_at: string | null;
 }
@@ -101,8 +102,9 @@ function BroadcastModal({ onClose, onSend }: { onClose: () => void; onSend: (t: 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        onClick={(e) => e.stopPropagation()}
         className="bg-card rounded-2xl border border-border p-6 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -152,8 +154,9 @@ function SystemPanel({ onClose }: { onClose: () => void }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        onClick={(e) => e.stopPropagation()}
         className="bg-card rounded-2xl border border-border p-6 w-full max-w-lg shadow-2xl max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -209,7 +212,7 @@ function SystemPanel({ onClose }: { onClose: () => void }) {
 /* ══════════ MAIN ADMIN DASHBOARD ══════════ */
 export function AdminDashboardPage() {
   const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, profile, signOut } = useAuth();
   const [stats, setStats] = useState({
     totalUsers: 0, pendingRequests: 0, resolvedRequests: 0,
     rejectedRequests: 0, totalAdmins: 0, totalReports: 0, missingPersons: 0,
@@ -249,7 +252,7 @@ export function AdminDashboardPage() {
       setRecentReports((repData as Report[]) || []);
 
       const { data: userData } = await supabase.from("profiles")
-        .select("user_id, display_name, email, is_active, created_at")
+        .select("user_id, display_name, email, avatar_url, is_active, created_at")
         .order("created_at", { ascending: false }).limit(5);
       setRecentUsers((userData as RecentUser[]) || []);
     } catch (err) { console.error("Admin fetch error:", err); }
@@ -296,8 +299,18 @@ export function AdminDashboardPage() {
     toast({ title: `User ${current ? "deactivated" : "activated"}` }); fetchData();
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/home", { replace: true });
+  };
+
   if (!isAdmin) {
-    return <div className="flex items-center justify-center min-h-[60vh]"><p className="text-muted-foreground">Access denied. Admin only.</p></div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <p className="text-muted-foreground">Access denied. Admin only.</p>
+        <button onClick={() => navigate("/main")} className="text-sm text-primary hover:underline">← Back to Dashboard</button>
+      </div>
+    );
   }
 
   if (loading) {
@@ -328,7 +341,32 @@ export function AdminDashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header with back arrow */}
+      {/* Admin Profile Bar */}
+      <div className="p-4 rounded-2xl bg-card border border-border flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-primary-foreground overflow-hidden shrink-0"
+          style={{ background: "var(--gradient-primary)" }}>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
+          ) : (
+            (profile?.display_name?.[0] || user?.email?.[0]?.toUpperCase() || "A")
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground truncate">{profile?.display_name || user?.email?.split("@")[0]}</h3>
+            <span className="text-[9px] font-bold text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-300 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+              <FaCrown className="text-[7px]" /> Admin
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+        </div>
+        <button onClick={handleSignOut}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-destructive bg-destructive/10 hover:bg-destructive/15 transition-colors">
+          <FaSignOutAlt className="text-xs" /> Sign Out
+        </button>
+      </div>
+
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/main")}
@@ -395,7 +433,7 @@ export function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Recent Reports & Users side by side */}
+      {/* Recent Reports & Users */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Recent Reports */}
         <div className="rounded-2xl bg-card border border-border overflow-hidden">
@@ -447,9 +485,13 @@ export function AdminDashboardPage() {
             ) : recentUsers.map((u) => (
               <div key={u.user_id} className="p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0"
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0 overflow-hidden"
                     style={{ background: "var(--gradient-primary)" }}>
-                    {(u.display_name?.[0] || u.email?.[0] || "U").toUpperCase()}
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                    ) : (
+                      (u.display_name?.[0] || u.email?.[0] || "U").toUpperCase()
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-foreground truncate">{u.display_name || "Unnamed"}</p>
