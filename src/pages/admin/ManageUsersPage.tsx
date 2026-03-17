@@ -16,6 +16,7 @@ interface UserProfile {
 }
 
 export function ManageUsersPage() {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
