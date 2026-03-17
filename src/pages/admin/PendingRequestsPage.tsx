@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { FaClipboardList, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaClipboardList, FaCheckCircle, FaTimesCircle, FaArrowLeft } from "react-icons/fa";
 
 interface Report {
   id: string;
