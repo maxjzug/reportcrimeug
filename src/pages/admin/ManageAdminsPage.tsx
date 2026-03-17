@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { FaUserShield, FaTrash, FaPlus } from "react-icons/fa";
+import { FaUserShield, FaTrash, FaPlus, FaArrowLeft } from "react-icons/fa";
 
 interface AdminUser {
   id: string;
@@ -14,6 +15,7 @@ interface AdminUser {
 }
 
 export function ManageAdminsPage() {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,9 +93,15 @@ export function ManageAdminsPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
-        <FaUserShield className="text-primary" /> Manage Admins
-      </h1>
+      <div className="flex items-center gap-3">
+        <button onClick={() => navigate("/admin")}
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted hover:bg-muted/80 text-foreground transition-colors">
+          <FaArrowLeft className="text-sm" />
+        </button>
+        <h1 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
+          <FaUserShield className="text-primary" /> Manage Admins
+        </h1>
+      </div>
 
       {/* Add admin */}
       <div className="p-4 rounded-lg bg-card border border-border space-y-3">

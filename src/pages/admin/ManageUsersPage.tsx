@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { FaUsers, FaToggleOn, FaToggleOff, FaSearch } from "react-icons/fa";
+import { FaUsers, FaToggleOn, FaToggleOff, FaSearch, FaArrowLeft } from "react-icons/fa";
 
 interface UserProfile {
   user_id: string;
@@ -15,6 +16,7 @@ interface UserProfile {
 }
 
 export function ManageUsersPage() {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,9 +50,15 @@ export function ManageUsersPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
-          <FaUsers className="text-primary" /> Manage Users
-        </h1>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate("/admin")}
+            className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted hover:bg-muted/80 text-foreground transition-colors">
+            <FaArrowLeft className="text-sm" />
+          </button>
+          <h1 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
+            <FaUsers className="text-primary" /> Manage Users
+          </h1>
+        </div>
         <span className="text-xs text-muted-foreground">{users.length} total</span>
       </div>
 

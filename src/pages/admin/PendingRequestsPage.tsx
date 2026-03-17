@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { FaClipboardList, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaClipboardList, FaCheckCircle, FaTimesCircle, FaArrowLeft } from "react-icons/fa";
 
 interface Report {
   id: string;
@@ -16,6 +17,7 @@ interface Report {
 }
 
 export function PendingRequestsPage() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,9 +53,15 @@ export function PendingRequestsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
-      <h1 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
-        <FaClipboardList className="text-primary" /> Crime Reports
-      </h1>
+      <div className="flex items-center gap-3">
+        <button onClick={() => navigate("/admin")}
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted hover:bg-muted/80 text-foreground transition-colors">
+          <FaArrowLeft className="text-sm" />
+        </button>
+        <h1 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
+          <FaClipboardList className="text-primary" /> Crime Reports
+        </h1>
+      </div>
 
       {/* Filter tabs */}
       <div className="flex gap-2">
