@@ -15,6 +15,7 @@ interface AdminUser {
 }
 
 export function ManageAdminsPage() {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
