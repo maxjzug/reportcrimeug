@@ -17,6 +17,7 @@ interface Report {
 }
 
 export function PendingRequestsPage() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
